@@ -47,6 +47,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libopus0 \
     libsodium23 \
     libstdc++6 \
+ && ln -s /usr/lib/x86_64-linux-gnu/libopus.so.0 /usr/lib/x86_64-linux-gnu/libopus.so \
+ && ln -s /usr/lib/x86_64-linux-gnu/libsodium.so.23 /usr/lib/x86_64-linux-gnu/libsodium.so \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
