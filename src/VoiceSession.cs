@@ -109,12 +109,19 @@ public sealed class VoiceSession
         };
 
         await _voiceClient.StartAsync(cancellationToken);
-        await _voiceClient.EnterSpeakingStateAsync(new SpeakingProperties(SpeakingFlags.Microphone), cancellationToken: cancellationToken);
 
         using var readyTimeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         readyTimeoutCts.CancelAfter(_config.VoiceReadyTimeout);
 
-        await readyTcs.Task.WaitAsync(readyTimeoutCts.Token);
+        try
+        {
+            await readyTcs.Task.WaitAsync(readyTimeoutCts.Token);
+        }
+        catch (OperationCanceledException) when (readyTimeoutCts.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+        {
+            throw new TimeoutException(
+                $"Voice client did not emit Ready within {_config.VoiceReadyTimeout.TotalMilliseconds:0} ms.");
+        }
 
         _flushLoopTask = RunFlushLoopAsync(_sessionCts.Token);
         _logger.Info($"Voice session started for '{_voiceChannel.Name}' ({_sessionId}).");

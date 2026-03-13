@@ -132,11 +132,12 @@ public sealed class VoiceSessionManager : IAsyncDisposable
                     var retryAt = DateTimeOffset.UtcNow.Add(_config.StartupRetryCooldown);
                     _startupCooldownByChannelId[channelId] = retryAt;
                     _logger.Error($"Voice session startup failed for channel '{voiceChannel.Name}'.", exception);
+                    var diagnostic = BuildStartupDiagnostic(exception);
 
                     await summaryChannel.SendMessageAsync(new NetCord.Rest.MessageProperties
                     {
                         Content =
-                            $"Я зашёл в **{voiceChannel.Name}**, но Discord voice capture так и не перешёл в рабочее состояние, поэтому записать аудио не удалось. Повторная попытка для этого канала будет не раньше чем через {(int)_config.StartupRetryCooldown.TotalSeconds} секунд."
+                            $"Я зашёл в **{voiceChannel.Name}**, но Discord voice capture так и не перешёл в рабочее состояние, поэтому записать аудио не удалось. {diagnostic} Повторная попытка для этого канала будет не раньше чем через {(int)_config.StartupRetryCooldown.TotalSeconds} секунд."
                     }, cancellationToken: cancellationToken);
                 }
             }
@@ -146,5 +147,26 @@ public sealed class VoiceSessionManager : IAsyncDisposable
 
         if (existingSession is not null)
             existingSession.ScheduleStop();
+    }
+
+    private static string BuildStartupDiagnostic(Exception exception)
+    {
+        return exception switch
+        {
+            TimeoutException => "Техническая причина: voice-клиент не прислал Ready вовремя.",
+            DllNotFoundException => "Техническая причина: на сервере не хватает нативных voice-библиотек.",
+            _ when exception.Message.Contains("Missing Permissions", StringComparison.OrdinalIgnoreCase)
+                => "Техническая причина: у бота не хватает Discord permissions для voice.",
+            _ => $"Техническая причина: {TrimForDiscord(exception.Message)}."
+        };
+    }
+
+    private static string TrimForDiscord(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+            return "неизвестная ошибка";
+
+        var flattened = message.ReplaceLineEndings(" ").Trim();
+        return flattened.Length <= 220 ? flattened : $"{flattened[..217]}...";
     }
 }
