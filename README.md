@@ -70,6 +70,7 @@ In the Discord Developer Portal, the bot should have:
 
 - `View Channels`
 - `Connect`
+- `Speak`
 - `Use Voice Activity`
 - `Send Messages`
 - `Attach Files`
