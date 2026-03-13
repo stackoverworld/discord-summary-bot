@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0-bookworm-slim AS app-build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS app-build
 WORKDIR /src
 
 COPY DiscordSummaryBot.csproj ./
@@ -7,7 +7,7 @@ RUN dotnet restore
 COPY . ./
 RUN dotnet publish -c Release -o /app/out --no-restore
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0-bookworm-slim AS libdave-build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS libdave-build
 ARG LIBDAVE_TAG=v1.1.1/cpp
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -37,10 +37,10 @@ RUN git submodule update --init --recursive
 WORKDIR /tmp/libdave/cpp
 RUN ./vcpkg/bootstrap-vcpkg.sh && make cclean && make shared
 
-FROM mcr.microsoft.com/dotnet/runtime:10.0-bookworm-slim
+FROM mcr.microsoft.com/dotnet/runtime:10.0
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
-    libicu72 \
+    libicu74 \
     libopus0 \
     libsodium23 \
     libstdc++6 \
