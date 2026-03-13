@@ -17,7 +17,7 @@
     <PackageReference Include="NetCord" Version="1.0.0-alpha.466" />
   </ItemGroup>
 
-  <Target Name="CopyNativeLibraries" AfterTargets="Build">
+  <Target Name="CopyNativeLibrariesToBuild" AfterTargets="Build">
     <MakeDir Directories="$(OutputPath)" />
     <Copy
       SourceFiles="$(LibDavePath)"
@@ -34,6 +34,15 @@
       DestinationFiles="$(OutputPath)libsodium.dylib"
       SkipUnchangedFiles="true"
       Condition="Exists('$(HomebrewPrefix)/opt/libsodium/lib/libsodium.dylib')" />
+  </Target>
+
+  <Target Name="CopyNativeLibrariesToPublish" AfterTargets="Publish">
+    <MakeDir Directories="$(PublishDir)" />
+    <Copy
+      SourceFiles="$(LibDavePath)"
+      DestinationFiles="$(PublishDir)libdave$(LibDaveExtension)"
+      SkipUnchangedFiles="true"
+      Condition="'$(LibDavePath)' != '' and Exists('$(LibDavePath)')" />
   </Target>
 
   <PropertyGroup>
