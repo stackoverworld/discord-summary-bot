@@ -36,6 +36,9 @@ RUN git submodule update --init --recursive
 
 WORKDIR /tmp/libdave/cpp
 RUN ./vcpkg/bootstrap-vcpkg.sh && make cclean && make shared
+RUN found_path="$(find /tmp/libdave -type f -name 'libdave.so' | head -n 1)" \
+ && test -n "$found_path" \
+ && cp "$found_path" /tmp/libdave.so
 
 FROM mcr.microsoft.com/dotnet/runtime:10.0
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -49,6 +52,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 COPY --from=app-build /app/out ./
-COPY --from=libdave-build /tmp/libdave/cpp/lib/libdave.so ./libdave.so
+COPY --from=libdave-build /tmp/libdave.so ./libdave.so
 
 ENTRYPOINT ["./DiscordSummaryBot"]
