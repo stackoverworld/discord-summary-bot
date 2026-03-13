@@ -1,0 +1,16 @@
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+bin
+obj
+.dotnet-home
+.nuget
+data
+!data/.gitkeep
+publish
+artifacts
+out
+README.md
+security_best_practices_report.md

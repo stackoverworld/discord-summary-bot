@@ -1,6 +1,0 @@
-{
-  "$schema": "https://schema.railpack.com",
-  "deploy": {
-    "aptPackages": ["libicu72", "libsodium23", "libopus0"]
-  }
-}

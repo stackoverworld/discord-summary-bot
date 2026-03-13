@@ -8,10 +8,6 @@ obj
 data
 !data/.gitkeep
 *.log
-native/*.dylib
-native/*.so
-native/*.dll
-!native/libdave.so
 .DS_Store
 .idea
 .vscode
@@ -19,3 +15,4 @@ native/*.dll
 *.suo
 publish
 artifacts
+out

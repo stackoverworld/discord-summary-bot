@@ -6,7 +6,7 @@ This repository is prepared for public GitHub hosting:
 
 - secrets are expected in local `.env` only;
 - recorded call data stays under local `data/` and is gitignored;
-- the Railway fast path includes a committed Linux `native/libdave.so`, while local macOS native libraries under `native/` stay gitignored.
+- Railway deployment is expected to run through the root `Dockerfile`.
 
 ## Why The Previous Version Did Not Work
 
@@ -55,15 +55,7 @@ The most practical path on macOS:
 brew install libsodium opus
 ```
 
-Install `libdave` using whatever method is available in your environment.
-
-You can provide it locally in either of these ways:
-
-- use the committed official Linux `native/libdave.so` for the Railway fast path;
-- set `LIBDAVE_PATH=/absolute/path/to/libdave.dylib` before building; or
-- place it at `native/libdave.dylib` for local development.
-
-The Linux `native/libdave.so` in this repo comes from Discord's official `libdave` release archive. The macOS drop-in path remains gitignored on purpose so contributors can supply their own local copy without publishing it.
+Install `libdave` using whatever method is available in your environment. For Railway, the included `Dockerfile` builds `libdave` inside the container, so you do not need to commit native binaries into the repo.
 
 ## Discord Setup
 
@@ -145,18 +137,20 @@ dotnet run
 dotnet publish -c Release
 ```
 
-Before pushing to GitHub, make sure the repo does not contain your local `.env`, recorded `data/`, `.dotnet-home/`, `bin/`, `obj/`, or extra custom native libraries under `native/`.
+Before pushing to GitHub, make sure the repo does not contain your local `.env`, recorded `data/`, `.dotnet-home/`, `bin/`, or `obj/`.
 
-### Railway Fast Path
+## Railway Deploy
 
-For Railway on Linux, the quickest voice-compatible setup is:
+Use Docker deployment for Railway:
 
-- add `RAILPACK_DEPLOY_APT_PACKAGES=libsodium23 libopus0`
-- keep the committed `native/libdave.so` in the repository so publish copies it into the app output automatically
+1. Keep the root `Dockerfile` committed in this repository.
+2. Push the repo to GitHub.
+3. In Railway, open the service.
+4. Go to `Settings`.
+5. Set `Builder` to `Dockerfile`.
+6. Redeploy.
 
-The official prebuilt Linux x64 asset currently comes from Discord's `libdave` release:
-
-- `https://github.com/discord/libdave/releases/download/v1.1.1/cpp/libdave-Linux-X64-boringssl.zip`
+The `Dockerfile` installs `libicu72`, `libsodium23`, and `libopus0`, then builds `libdave` inside the same Linux image so Discord voice works without committed native binaries.
 
 ## Output Layout
 

@@ -6,47 +6,9 @@
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <HomebrewPrefix Condition="Exists('/opt/homebrew')">/opt/homebrew</HomebrewPrefix>
-    <HomebrewPrefix Condition="'$(HomebrewPrefix)' == '' and Exists('/usr/local')">/usr/local</HomebrewPrefix>
-    <LibDavePath Condition="'$(LIBDAVE_PATH)' != ''">$(LIBDAVE_PATH)</LibDavePath>
-    <LibDavePath Condition="'$(LibDavePath)' == '' and $([MSBuild]::IsOSPlatform('Linux')) and Exists('native/libdave.so')">native/libdave.so</LibDavePath>
-    <LibDavePath Condition="'$(LibDavePath)' == '' and $([MSBuild]::IsOSPlatform('OSX')) and Exists('native/libdave.dylib')">native/libdave.dylib</LibDavePath>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="NetCord" Version="1.0.0-alpha.466" />
   </ItemGroup>
-
-  <Target Name="CopyNativeLibrariesToBuild" AfterTargets="Build">
-    <MakeDir Directories="$(OutputPath)" />
-    <Copy
-      SourceFiles="$(LibDavePath)"
-      DestinationFiles="$(OutputPath)libdave$(LibDaveExtension)"
-      SkipUnchangedFiles="true"
-      Condition="'$(LibDavePath)' != '' and Exists('$(LibDavePath)')" />
-    <Copy
-      SourceFiles="$(HomebrewPrefix)/opt/opus/lib/libopus.dylib"
-      DestinationFiles="$(OutputPath)libopus.dylib"
-      SkipUnchangedFiles="true"
-      Condition="Exists('$(HomebrewPrefix)/opt/opus/lib/libopus.dylib')" />
-    <Copy
-      SourceFiles="$(HomebrewPrefix)/opt/libsodium/lib/libsodium.dylib"
-      DestinationFiles="$(OutputPath)libsodium.dylib"
-      SkipUnchangedFiles="true"
-      Condition="Exists('$(HomebrewPrefix)/opt/libsodium/lib/libsodium.dylib')" />
-  </Target>
-
-  <Target Name="CopyNativeLibrariesToPublish" AfterTargets="Publish">
-    <MakeDir Directories="$(PublishDir)" />
-    <Copy
-      SourceFiles="$(LibDavePath)"
-      DestinationFiles="$(PublishDir)libdave$(LibDaveExtension)"
-      SkipUnchangedFiles="true"
-      Condition="'$(LibDavePath)' != '' and Exists('$(LibDavePath)')" />
-  </Target>
-
-  <PropertyGroup>
-    <LibDaveExtension Condition="'$(LibDavePath)' != ''">$([System.IO.Path]::GetExtension('$(LibDavePath)'))</LibDaveExtension>
-    <LibDaveExtension Condition="'$(LibDaveExtension)' == ''">.dylib</LibDaveExtension>
-  </PropertyGroup>
 </Project>
