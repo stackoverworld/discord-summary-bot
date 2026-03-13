@@ -9,7 +9,8 @@
     <HomebrewPrefix Condition="Exists('/opt/homebrew')">/opt/homebrew</HomebrewPrefix>
     <HomebrewPrefix Condition="'$(HomebrewPrefix)' == '' and Exists('/usr/local')">/usr/local</HomebrewPrefix>
     <LibDavePath Condition="'$(LIBDAVE_PATH)' != ''">$(LIBDAVE_PATH)</LibDavePath>
-    <LibDavePath Condition="'$(LibDavePath)' == '' and Exists('native/libdave.dylib')">native/libdave.dylib</LibDavePath>
+    <LibDavePath Condition="'$(LibDavePath)' == '' and $([MSBuild]::IsOSPlatform('Linux')) and Exists('native/libdave.so')">native/libdave.so</LibDavePath>
+    <LibDavePath Condition="'$(LibDavePath)' == '' and $([MSBuild]::IsOSPlatform('OSX')) and Exists('native/libdave.dylib')">native/libdave.dylib</LibDavePath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +21,7 @@
     <MakeDir Directories="$(OutputPath)" />
     <Copy
       SourceFiles="$(LibDavePath)"
-      DestinationFiles="$(OutputPath)libdave.dylib"
+      DestinationFiles="$(OutputPath)libdave$(LibDaveExtension)"
       SkipUnchangedFiles="true"
       Condition="'$(LibDavePath)' != '' and Exists('$(LibDavePath)')" />
     <Copy
@@ -34,4 +35,9 @@
       SkipUnchangedFiles="true"
       Condition="Exists('$(HomebrewPrefix)/opt/libsodium/lib/libsodium.dylib')" />
   </Target>
+
+  <PropertyGroup>
+    <LibDaveExtension Condition="'$(LibDavePath)' != ''">$([System.IO.Path]::GetExtension('$(LibDavePath)'))</LibDaveExtension>
+    <LibDaveExtension Condition="'$(LibDaveExtension)' == ''">.dylib</LibDaveExtension>
+  </PropertyGroup>
 </Project>
